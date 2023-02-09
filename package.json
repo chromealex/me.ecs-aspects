@@ -4,7 +4,11 @@
   "displayName": "ME.ECS Aspects",
   "description": "ME.ECS Aspects Package.",
   "unity": "2020.3",
+  "ecsdependencies": [
+    "com.me.ecs.transform"
+  ],
   "dependencies": {
+    "com.unity.mathematics": "1.2.1",
   },
   "scopedRegistries": [
     {
