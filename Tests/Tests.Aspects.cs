@@ -62,7 +62,26 @@ namespace ME.ECS.Tests {
             }
 
         }
+
+        public readonly ref struct TestAspectBurst {
+
+            private readonly Entity ent;
+
+            public readonly RefRW<TestComponent> pos;
+            public readonly RefRW<TestComponent2> rot;
+            
+            public TestAspectBurst(Entity ent, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+                this.pos = new RefRW<TestComponent>(ent, allocator);
+                this.rot = new RefRW<TestComponent2>(ent, allocator);
+                this.ent = ent;
+            }
         
+            public void Dispose(in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+                this.ent.SetDirty(in allocator);
+            }
+
+        }
+
         private class TestState : State {}
         
         private class TestStatesHistoryModule : ME.ECS.StatesHistory.StatesHistoryModule<TestState> {
@@ -147,6 +166,67 @@ namespace ME.ECS.Tests {
                         }
                     }
                     
+                }
+            }
+            world.SaveResetState<TestState>();
+            
+            world.SetFromToTicks(0, 1);
+            world.Update(1f);
+            
+            WorldUtilities.ReleaseWorld<TestState>(ref world);
+
+        }
+
+        [NUnit.Framework.TestAttribute]
+        public void FillAspectsBurst() {
+
+            World world = null;
+            WorldUtilities.CreateWorld<TestState>(ref world, 0.033f);
+            {
+                world.AddModule<TestStatesHistoryModule>();
+                world.AddModule<TestNetworkModule>();
+                world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+                world.SetSeed(1u);
+                {
+                    WorldUtilities.InitComponentTypeId<TestComponent>(false);
+                    WorldUtilities.InitComponentTypeId<TestComponent2>(false);
+                    ComponentsInitializerWorld.Setup((e) => {
+                
+                        e.ValidateDataUnmanaged<TestComponent>();
+                        e.ValidateDataUnmanaged<TestComponent2>();
+                
+                    });
+                }
+                {
+                    world.SetEntitiesCapacity(1000);
+                    
+                    var list = new System.Collections.Generic.List<Entity>();
+                    for (int i = 0; i < 1000; ++i) {
+                        var ent = Entity.Create();
+                        ent.Set(new TestComponent());
+                        ent.Set(new TestComponent2());
+                        list.Add(ent);
+                    }
+
+                    ref var allocator = ref world.currentState.allocator;
+                    {
+                        for (int i = 0; i < list.Count; ++i) {
+                            var ent = list[i];
+                            var testAspect = new TestAspectBurst(ent, in allocator);
+                            testAspect.pos.Value(in allocator).value = 1f;
+                            testAspect.rot.Value(in allocator).value = 2f;
+                            testAspect.Dispose(in allocator);
+                        }
+                        
+                        for (int i = 0; i < list.Count; ++i) {
+                            var ent = list[i];
+                            var testAspect = new TestAspectBurst(ent, in allocator);
+                            NUnit.Framework.Assert.AreEqual(1f, testAspect.pos.Value(in allocator).value);
+                            NUnit.Framework.Assert.AreEqual(2f, testAspect.rot.Value(in allocator).value);
+                            testAspect.Dispose(in allocator);
+                        }
+                    }
+
                 }
             }
             world.SaveResetState<TestState>();

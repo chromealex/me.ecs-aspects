@@ -3,6 +3,7 @@
     "rootNamespace": "",
     "references": [
         "ME.ECS",
+        "Unity.Burst",
         "ME.ECS.IL2CPP",
         "ME.ECS.Transform",
         "ME.ECS.FPMath"

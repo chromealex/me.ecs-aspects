@@ -10,6 +10,15 @@ namespace ME.ECS {
 
         }
 
+        public RefRW(Entity entity, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+
+            ref var reg = ref allocator.Ref<UnmanagedComponentsStorage.Item<T>>(AllComponentTypes<T>.burstTypeStorageDirectRef.Data);
+            this.safePtr = reg.components.ReadPtr(in allocator, entity.id);
+            
+        }
+
+        public readonly ref T Value(in ME.ECS.Collections.V3.MemoryAllocator allocator) => ref allocator.Ref<T>(this.safePtr);
+
         public readonly ref T value => ref Worlds.current.currentState.allocator.Ref<T>(this.safePtr);
         
         public static implicit operator RefRW<T>(Entity ent) {
@@ -28,6 +37,15 @@ namespace ME.ECS {
 
         }
 
+        public RefRO(Entity entity, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+
+            ref var reg = ref allocator.Ref<UnmanagedComponentsStorage.Item<T>>(AllComponentTypes<T>.burstTypeStorageDirectRef.Data);
+            this.safePtr = reg.components.ReadPtr(in allocator, entity.id);
+            
+        }
+
+        public readonly ref T Value(in ME.ECS.Collections.V3.MemoryAllocator allocator) => ref allocator.Ref<T>(this.safePtr);
+
         public readonly ref readonly T value => ref Worlds.current.currentState.allocator.Ref<T>(this.safePtr);
 
         public static implicit operator RefRO<T>(Entity ent) {
@@ -44,6 +62,17 @@ namespace ME.ECS {
 
             this.safePtr = Worlds.current.ReadDataPtr<T>(entity);
 
+        }
+
+        public RefWO(Entity entity, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+
+            ref var reg = ref allocator.Ref<UnmanagedComponentsStorage.Item<T>>(AllComponentTypes<T>.burstTypeStorageDirectRef.Data);
+            this.safePtr = reg.components.ReadPtr(in allocator, entity.id);
+            
+        }
+
+        public readonly void Value(in ME.ECS.Collections.V3.MemoryAllocator allocator, T value) {
+            allocator.Ref<T>(this.safePtr) = value;
         }
 
         public readonly T value {
