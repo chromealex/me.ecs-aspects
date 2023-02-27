@@ -5,6 +5,7 @@
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "ME.ECS",
+        "Unity.Burst",
         "ME.ECS.Aspects"
     ],
     "includePlatforms": [

@@ -6,15 +6,32 @@ namespace ME.ECS {
 
         public RefRW(Entity entity) {
 
-            this.safePtr = Worlds.current.ReadDataPtr<T>(entity);
+            ref var allocator = ref ME.ECS.Collections.V3.AllocatorContext.burstAllocator.Data;
+            if (allocator.isValid == true) {
+                
+                this = default;
+                this.Init(entity, in allocator);
+                
+            } else {
+
+                this.safePtr = Worlds.current.ReadDataPtr<T>(entity);
+
+            }
 
         }
 
         public RefRW(Entity entity, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
 
+            this = default;
+            this.Init(entity, in allocator);
+
+        }
+
+        private void Init(Entity entity, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+            
             ref var reg = ref allocator.Ref<UnmanagedComponentsStorage.Item<T>>(AllComponentTypes<T>.burstTypeStorageDirectRef.Data);
             this.safePtr = reg.components.ReadPtr(in allocator, entity.id);
-            
+
         }
 
         public readonly ref T Value(in ME.ECS.Collections.V3.MemoryAllocator allocator) => ref allocator.Ref<T>(this.safePtr);
@@ -33,15 +50,32 @@ namespace ME.ECS {
 
         public RefRO(Entity entity) {
 
-            this.safePtr = Worlds.current.ReadDataPtr<T>(entity);
+            ref var allocator = ref ME.ECS.Collections.V3.AllocatorContext.burstAllocator.Data;
+            if (allocator.isValid == true) {
+                
+                this = default;
+                this.Init(entity, in allocator);
+                
+            } else {
+
+                this.safePtr = Worlds.current.ReadDataPtr<T>(entity);
+
+            }
 
         }
 
         public RefRO(Entity entity, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
 
+            this = default;
+            this.Init(entity, in allocator);
+
+        }
+
+        private void Init(Entity entity, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+            
             ref var reg = ref allocator.Ref<UnmanagedComponentsStorage.Item<T>>(AllComponentTypes<T>.burstTypeStorageDirectRef.Data);
             this.safePtr = reg.components.ReadPtr(in allocator, entity.id);
-            
+
         }
 
         public readonly ref T Value(in ME.ECS.Collections.V3.MemoryAllocator allocator) => ref allocator.Ref<T>(this.safePtr);
@@ -60,15 +94,32 @@ namespace ME.ECS {
 
         public RefWO(Entity entity) {
 
-            this.safePtr = Worlds.current.ReadDataPtr<T>(entity);
+            ref var allocator = ref ME.ECS.Collections.V3.AllocatorContext.burstAllocator.Data;
+            if (allocator.isValid == true) {
+                
+                this = default;
+                this.Init(entity, in allocator);
+                
+            } else {
+
+                this.safePtr = Worlds.current.ReadDataPtr<T>(entity);
+
+            }
 
         }
 
         public RefWO(Entity entity, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
 
+            this = default;
+            this.Init(entity, in allocator);
+
+        }
+
+        private void Init(Entity entity, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+            
             ref var reg = ref allocator.Ref<UnmanagedComponentsStorage.Item<T>>(AllComponentTypes<T>.burstTypeStorageDirectRef.Data);
             this.safePtr = reg.components.ReadPtr(in allocator, entity.id);
-            
+
         }
 
         public readonly void Value(in ME.ECS.Collections.V3.MemoryAllocator allocator, T value) {

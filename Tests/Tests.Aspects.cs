@@ -70,14 +70,18 @@ namespace ME.ECS.Tests {
             public readonly RefRW<TestComponent> pos;
             public readonly RefRW<TestComponent2> rot;
             
-            public TestAspectBurst(Entity ent, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
-                this.pos = new RefRW<TestComponent>(ent, allocator);
-                this.rot = new RefRW<TestComponent2>(ent, allocator);
+            private TestAspectBurst(Entity ent) {
+                this.pos = new RefRW<TestComponent>(ent, in ME.ECS.Collections.V3.AllocatorContext.burstAllocator.Data);
+                this.rot = new RefRW<TestComponent2>(ent, in ME.ECS.Collections.V3.AllocatorContext.burstAllocator.Data);
                 this.ent = ent;
             }
         
-            public void Dispose(in ME.ECS.Collections.V3.MemoryAllocator allocator) {
-                this.ent.SetDirty(in allocator);
+            public static implicit operator TestAspectBurst(Entity ent) {
+                return new TestAspectBurst(ent);
+            }
+
+            public void Dispose() {
+                this.ent.SetDirty(in ME.ECS.Collections.V3.AllocatorContext.burstAllocator.Data);
             }
 
         }
@@ -209,21 +213,20 @@ namespace ME.ECS.Tests {
                     }
 
                     ref var allocator = ref world.currentState.allocator;
+                    using var context = ME.ECS.Collections.V3.MemoryAllocator.CreateContext();
                     {
                         for (int i = 0; i < list.Count; ++i) {
                             var ent = list[i];
-                            var testAspect = new TestAspectBurst(ent, in allocator);
+                            using var testAspect = (TestAspectBurst)ent;
                             testAspect.pos.Value(in allocator).value = 1f;
                             testAspect.rot.Value(in allocator).value = 2f;
-                            testAspect.Dispose(in allocator);
                         }
                         
                         for (int i = 0; i < list.Count; ++i) {
                             var ent = list[i];
-                            var testAspect = new TestAspectBurst(ent, in allocator);
+                            using var testAspect = (TestAspectBurst)ent;
                             NUnit.Framework.Assert.AreEqual(1f, testAspect.pos.Value(in allocator).value);
                             NUnit.Framework.Assert.AreEqual(2f, testAspect.rot.Value(in allocator).value);
-                            testAspect.Dispose(in allocator);
                         }
                     }
 
