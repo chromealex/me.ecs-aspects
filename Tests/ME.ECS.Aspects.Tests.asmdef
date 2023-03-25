@@ -6,7 +6,8 @@
         "UnityEditor.TestRunner",
         "ME.ECS",
         "Unity.Burst",
-        "ME.ECS.Aspects"
+        "ME.ECS.Aspects",
+        "Unity.Collections"
     ],
     "includePlatforms": [
         "Editor"

@@ -1,11 +1,13 @@
 namespace ME.ECS {
 
-    public ref struct RefRW<T> where T : unmanaged, IComponent {
+    public struct RefRW<T> where T : unmanaged, IComponent {
 
         private long safePtr;
 
         public RefRW(Entity entity) {
 
+            E.HAS_COMPONENT<T>(entity);
+            
             ref var allocator = ref ME.ECS.Collections.V3.AllocatorContext.burstAllocator.Data;
             if (allocator.isValid == true) {
                 
@@ -21,6 +23,8 @@ namespace ME.ECS {
         }
 
         public RefRW(Entity entity, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+
+            E.HAS_COMPONENT<T>(entity);
 
             this = default;
             this.Init(entity, in allocator);
@@ -44,11 +48,13 @@ namespace ME.ECS {
         
     }
 
-    public ref struct RefRO<T> where T : unmanaged, IComponent {
+    public struct RefRO<T> where T : unmanaged, IComponent {
 
         private long safePtr;
 
         public RefRO(Entity entity) {
+
+            E.HAS_COMPONENT<T>(entity);
 
             ref var allocator = ref ME.ECS.Collections.V3.AllocatorContext.burstAllocator.Data;
             if (allocator.isValid == true) {
@@ -65,6 +71,8 @@ namespace ME.ECS {
         }
 
         public RefRO(Entity entity, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+
+            E.HAS_COMPONENT<T>(entity);
 
             this = default;
             this.Init(entity, in allocator);
@@ -88,11 +96,13 @@ namespace ME.ECS {
 
     }
 
-    public ref struct RefWO<T> where T : unmanaged, IComponent {
+    public struct RefWO<T> where T : unmanaged, IComponent {
 
         private long safePtr;
 
         public RefWO(Entity entity) {
+
+            E.HAS_COMPONENT<T>(entity);
 
             ref var allocator = ref ME.ECS.Collections.V3.AllocatorContext.burstAllocator.Data;
             if (allocator.isValid == true) {
@@ -109,6 +119,8 @@ namespace ME.ECS {
         }
 
         public RefWO(Entity entity, in ME.ECS.Collections.V3.MemoryAllocator allocator) {
+
+            E.HAS_COMPONENT<T>(entity);
 
             this = default;
             this.Init(entity, in allocator);
