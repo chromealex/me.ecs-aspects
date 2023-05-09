@@ -71,8 +71,8 @@ namespace ME.ECS.Tests {
             public readonly RefRW<TestComponent2> rot;
             
             private TestAspectBurst(Entity ent) {
-                this.pos = new RefRW<TestComponent>(ent, in ME.ECS.Collections.V3.AllocatorContext.burstAllocator.Data);
-                this.rot = new RefRW<TestComponent2>(ent, in ME.ECS.Collections.V3.AllocatorContext.burstAllocator.Data);
+                this.pos = new RefRW<TestComponent>(ent, in ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocatorContext.burstAllocator.Data);
+                this.rot = new RefRW<TestComponent2>(ent, in ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocatorContext.burstAllocator.Data);
                 this.ent = ent;
             }
         
@@ -81,7 +81,7 @@ namespace ME.ECS.Tests {
             }
 
             public void Dispose() {
-                this.ent.SetDirty(in ME.ECS.Collections.V3.AllocatorContext.burstAllocator.Data);
+                this.ent.SetDirty(in ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocatorContext.burstAllocator.Data);
             }
 
         }
@@ -213,7 +213,7 @@ namespace ME.ECS.Tests {
                     }
 
                     ref var allocator = ref world.currentState.allocator;
-                    using var context = ME.ECS.Collections.V3.MemoryAllocator.CreateContext();
+                    using var context = ME.ECS.Collections.LowLevel.Unsafe.MemoryAllocator.CreateContext();
                     {
                         for (int i = 0; i < list.Count; ++i) {
                             var ent = list[i];
