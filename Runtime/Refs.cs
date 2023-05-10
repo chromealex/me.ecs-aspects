@@ -1,8 +1,10 @@
 namespace ME.ECS {
+    
+    using ME.ECS.Collections.LowLevel.Unsafe;
 
     public struct RefRW<T> where T : unmanaged, IComponent {
 
-        private long safePtr;
+        private MemPtr safePtr;
 
         public RefRW(Entity entity) {
 
@@ -50,7 +52,7 @@ namespace ME.ECS {
 
     public struct RefRO<T> where T : unmanaged, IComponent {
 
-        private long safePtr;
+        private MemPtr safePtr;
 
         public RefRO(Entity entity) {
 
@@ -98,7 +100,7 @@ namespace ME.ECS {
 
     public struct RefWO<T> where T : unmanaged, IComponent {
 
-        private long safePtr;
+        private MemPtr safePtr;
 
         public RefWO(Entity entity) {
 
