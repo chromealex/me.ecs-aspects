@@ -6,7 +6,8 @@
         "Unity.Burst",
         "ME.ECS.IL2CPP",
         "ME.ECS.Transform",
-        "ME.ECS.FPMath"
+        "ME.ECS.FPMath",
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

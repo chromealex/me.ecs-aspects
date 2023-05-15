@@ -30,9 +30,9 @@ namespace ME.ECS {
             get => this.ent.GetScale();
         }
 
-        public ref ME.ECS.Mathematics.float3 localPosition => ref this.localPositionComponent.value.value;
-        public ref ME.ECS.Mathematics.quaternion localRotation => ref this.localRotationComponent.value.value;
-        public ref ME.ECS.Mathematics.float3 localScale => ref this.localScaleComponent.value.value;
+        public ref float3 localPosition => ref this.localPositionComponent.value.value;
+        public ref quaternion localRotation => ref this.localRotationComponent.value.value;
+        public ref float3 localScale => ref this.localScaleComponent.value.value;
 
         private TransformAspect(Entity ent) {
             this.localPositionComponent = new RefRW<ME.ECS.Transform.Position>(ent);
@@ -71,9 +71,9 @@ namespace ME.ECS {
             get => this.ent.GetScale2D();
         }
 
-        public ref ME.ECS.Mathematics.float2 localPosition => ref this.localPositionComponent.value.value;
+        public ref float2 localPosition => ref this.localPositionComponent.value.value;
         public ref tfloat localRotation => ref this.localRotationComponent.value.value;
-        public ref ME.ECS.Mathematics.float2 localScale => ref this.localScaleComponent.value.value;
+        public ref float2 localScale => ref this.localScaleComponent.value.value;
 
         private Transform2DAspect(Entity ent) {
             this.localPositionComponent = new RefRW<ME.ECS.Transform.Position2D>(ent);
