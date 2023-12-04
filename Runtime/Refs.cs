@@ -3,7 +3,7 @@ namespace ME.ECS {
     using ME.ECS.Collections.LowLevel.Unsafe;
     using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
-    public unsafe struct RegRefRW<T> where T : unmanaged, IComponentBase {
+    public unsafe struct RegRefRW<T> where T : unmanaged, IStructComponent {
 
         private MemPtr safePtr;
         private int sparseVersion;
@@ -50,10 +50,11 @@ namespace ME.ECS {
         [INLINE(256)]
         public ref T Value(int id, State state) {
             this.ValidatePointers(state);
-            if (id >= this.itemPtr->components.Length) return ref AllComponentTypes<T>.defaultRef;
-            //return ref this.itemPtr->components.Get(ref state.allocator, id).data;
+            if (id >= this.itemPtr->components.Length) {
+                return ref Worlds.current.GetData<T>(state.storage.cache[in state.allocator, id]);
+            }
             var idx = *(this.sparsePtr + id);
-            if (idx == 0) return ref AllComponentTypes<T>.defaultRef;
+            if (idx == 0) return ref Worlds.current.GetData<T>(state.storage.cache[in state.allocator, id]);
             return ref (this.densePtr + idx)->data;
         }
 
@@ -61,7 +62,6 @@ namespace ME.ECS {
         public bool Has(int id, State state) {
             this.ValidatePointers(state);
             if (id >= this.itemPtr->components.Length) return false;
-            //return this.itemPtr->components.Get(ref state.allocator, id).state > 0;
             var idx = *(this.sparsePtr + id);
             if (idx == 0) return false;
             return (this.densePtr + idx)->state > 0;
