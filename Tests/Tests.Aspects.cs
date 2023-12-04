@@ -14,6 +14,27 @@ namespace ME.ECS.Tests {
 
         }
 
+        public struct TestAspect3 {
+
+            public Entity entity;
+
+            private State state;
+            private RegRefRW<TestComponent> test1Reg;
+            private RegRefRW<TestComponent2> test2Reg;
+
+            public ref TestComponent test1 => ref this.test1Reg.Value(this.entity.id, this.state);
+            public ref TestComponent2 test2 => ref this.test2Reg.Value(this.entity.id, this.state);
+
+            public void Initialize(State state) {
+
+                this.state = state;
+                this.test1Reg = new RegRefRW<TestComponent>(state);
+                this.test2Reg = new RegRefRW<TestComponent2>(state);
+
+            }
+
+        }
+
         public readonly ref struct TestAspect2 {
 
             private readonly Entity ent;
@@ -101,6 +122,93 @@ namespace ME.ECS.Tests {
 
         }
 
+        [NUnit.Framework.TestAttribute]
+        public void RegAspect() {
+
+            World world = null;
+            WorldUtilities.CreateWorld<TestState>(ref world, 0.033f);
+            {
+                world.AddModule<TestStatesHistoryModule>();
+                world.AddModule<TestNetworkModule>();
+                world.SetState<TestState>(WorldUtilities.CreateState<TestState>());
+                world.SetSeed(1u);
+                {
+                    WorldUtilities.InitComponentTypeId<TestComponent>(false);
+                    WorldUtilities.InitComponentTypeId<TestComponent2>(false);
+                    ComponentsInitializerWorld.Setup((e) => {
+                
+                        e.ValidateDataUnmanaged<TestComponent>();
+                        e.ValidateDataUnmanaged<TestComponent2>();
+                
+                    });
+                }
+                {
+                    world.SetEntitiesCapacity(1000);
+                    
+                    var list = new System.Collections.Generic.List<Entity>();
+                    for (int i = 0; i < 1000; ++i) {
+                        var ent = Entity.Create();
+                        ent.Set(new TestComponent());
+                        ent.Set(new TestComponent2());
+                        list.Add(ent);
+                    }
+
+                    var aspect = new TestAspect3();
+                    aspect.Initialize(world.currentState);
+                    
+                    {
+                        for (int i = 0; i < list.Count; ++i) {
+                            var ent = list[i];
+                            var testAspect = aspect;
+                            testAspect.entity = ent;
+                            testAspect.test1.value = 1f;
+                            testAspect.test2.value = 2f;
+                        }
+                        
+                        for (int i = 0; i < list.Count; ++i) {
+                            var ent = list[i];
+                            var testAspect = aspect;
+                            testAspect.entity = ent;
+                            NUnit.Framework.Assert.AreEqual(1f, testAspect.test1.value);
+                            NUnit.Framework.Assert.AreEqual(2f, testAspect.test2.value);
+                        }
+                    }
+                    
+                    for (int i = 0; i < list.Count; ++i) {
+                        var ent = list[i];
+                        ent.Set(new TestComponent());
+                        ent.Set(new TestComponent2());
+                    }
+
+                    {
+                        for (int i = 0; i < list.Count; ++i) {
+                            var ent = list[i];
+                            var testAspect = aspect;
+                            testAspect.entity = ent;
+                            testAspect.test1.value = 1f;
+                            testAspect.test2.value = 2f;
+                        }
+                        
+                        for (int i = 0; i < list.Count; ++i) {
+                            var ent = list[i];
+                            var testAspect = aspect;
+                            testAspect.entity = ent;
+                            NUnit.Framework.Assert.AreEqual(1f, testAspect.test1.value);
+                            NUnit.Framework.Assert.AreEqual(2f, testAspect.test2.value);
+                        }
+                    }
+                    
+                }
+            }
+            world.SaveResetState<TestState>();
+            
+            world.SetFromToTicks(0, 1);
+            world.Update(1f);
+            
+            WorldUtilities.ReleaseWorld<TestState>(ref world);
+
+        }
+        
         [NUnit.Framework.TestAttribute]
         public void FillAspects() {
 
