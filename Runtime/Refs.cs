@@ -10,7 +10,9 @@ namespace ME.ECS {
         private int denseVersion;
         private int stateVersion;
         private int* sparsePtr;
+        #if !SPARSESET_DENSE_SLICED
         private Component<T>* densePtr;
+        #endif
         private UnmanagedComponentsStorage.Item<T>* itemPtr;
 
         [INLINE(256)]
@@ -21,7 +23,9 @@ namespace ME.ECS {
             this.denseVersion = components.GetDense().version;
             this.stateVersion = state.localVersion;
             this.sparsePtr = (int*)components.GetSparse().GetUnsafePtr(in state.allocator);
+            #if !SPARSESET_DENSE_SLICED
             this.densePtr = (Component<T>*)components.GetDense().GetUnsafePtr(in state.allocator);
+            #endif
             this.itemPtr = (UnmanagedComponentsStorage.Item<T>*)state.allocator.GetUnsafePtr(in this.safePtr);
         }
 
@@ -41,7 +45,9 @@ namespace ME.ECS {
                 this.denseVersion = this.itemPtr->components.GetDense().version;
                 if (this.itemPtr->components.Length > 0) {
                     if (this.itemPtr->components.GetSparse().isCreated == true) this.sparsePtr = (int*)this.itemPtr->components.GetSparse().GetUnsafePtr(in state.allocator);
+                    #if !SPARSESET_DENSE_SLICED
                     if (this.itemPtr->components.GetDense().isCreated == true) this.densePtr = (Component<T>*)this.itemPtr->components.GetDense().GetUnsafePtr(in state.allocator);
+                    #endif
                 }
             }
             
@@ -55,7 +61,11 @@ namespace ME.ECS {
             }
             var idx = *(this.sparsePtr + id);
             if (idx == 0) return ref Worlds.current.GetData<T>(state.storage.cache[in state.allocator, id]);
+            #if SPARSESET_DENSE_SLICED
+            return ref this.itemPtr->components.GetDense()[in Worlds.current.currentState.allocator, idx].data;
+            #else
             return ref (this.densePtr + idx)->data;
+            #endif
         }
 
         [INLINE(256)]
@@ -64,7 +74,11 @@ namespace ME.ECS {
             if (id >= this.itemPtr->components.Length) return false;
             var idx = *(this.sparsePtr + id);
             if (idx == 0) return false;
+            #if SPARSESET_DENSE_SLICED
+            return this.itemPtr->components.GetDense()[in Worlds.current.currentState.allocator, idx].state > 0;
+            #else
             return (this.densePtr + idx)->state > 0;
+            #endif
         }
 
     }
