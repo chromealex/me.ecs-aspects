@@ -37,16 +37,18 @@ namespace ME.ECS {
                 this.stateVersion = state.localVersion;
                 stateChanged = true;
             }
-            
+
+            ref var sparse = ref this.itemPtr->components.sparse;
+            ref var dense = ref this.itemPtr->components.dense;
             if (stateChanged == true ||
-                this.sparseVersion != this.itemPtr->components.GetSparse().version ||
-                this.denseVersion != this.itemPtr->components.GetDense().version) {
-                this.sparseVersion = this.itemPtr->components.GetSparse().version;
-                this.denseVersion = this.itemPtr->components.GetDense().version;
+                this.sparseVersion != sparse.version ||
+                this.denseVersion != dense.version) {
+                this.sparseVersion = sparse.version;
+                this.denseVersion = dense.version;
                 if (this.itemPtr->components.Length > 0) {
-                    if (this.itemPtr->components.GetSparse().isCreated == true) this.sparsePtr = (int*)this.itemPtr->components.GetSparse().GetUnsafePtr(in state.allocator);
+                    if (sparse.isCreated == true) this.sparsePtr = (int*)sparse.GetUnsafePtr(in state.allocator);
                     #if !SPARSESET_DENSE_SLICED
-                    if (this.itemPtr->components.GetDense().isCreated == true) this.densePtr = (Component<T>*)this.itemPtr->components.GetDense().GetUnsafePtr(in state.allocator);
+                    if (dense.isCreated == true) this.densePtr = (Component<T>*)dense.GetUnsafePtr(in state.allocator);
                     #endif
                 }
             }
