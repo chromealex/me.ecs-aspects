@@ -3,6 +3,88 @@ namespace ME.ECS {
     using ME.ECS.Collections.LowLevel.Unsafe;
     using INLINE = System.Runtime.CompilerServices.MethodImplAttribute;
 
+    public unsafe struct RegRefRO<T> where T : unmanaged, IStructComponent {
+
+        private MemPtr safePtr;
+        private int sparseVersion;
+        private int denseVersion;
+        private int stateVersion;
+        private int* sparsePtr;
+        #if !SPARSESET_DENSE_SLICED
+        private Component<T>* densePtr;
+        #endif
+        private UnmanagedComponentsStorage.Item<T>* itemPtr;
+
+        [INLINE(256)]
+        public RegRefRO(State state) {
+            this.safePtr = state.structComponents.unmanagedComponentsStorage.GetRegistryPtr<T>(in state.allocator);
+            var components = state.allocator.Ref<UnmanagedComponentsStorage.Item<T>>(this.safePtr).components;
+            this.sparseVersion = components.GetSparse().version;
+            this.denseVersion = components.GetDense().version;
+            this.stateVersion = state.localVersion;
+            this.sparsePtr = (int*)components.GetSparse().GetUnsafePtr(in state.allocator);
+            #if !SPARSESET_DENSE_SLICED
+            this.densePtr = (Component<T>*)components.GetDense().GetUnsafePtr(in state.allocator);
+            #endif
+            this.itemPtr = (UnmanagedComponentsStorage.Item<T>*)state.allocator.GetUnsafePtr(in this.safePtr);
+        }
+
+        [INLINE(256)]
+        public void ValidatePointers(State state) {
+            var stateChanged = false;
+            if (state.localVersion != this.stateVersion) {
+                this.itemPtr = (UnmanagedComponentsStorage.Item<T>*)state.allocator.GetUnsafePtr(in this.safePtr);
+                this.stateVersion = state.localVersion;
+                stateChanged = true;
+            }
+
+            ref var sparse = ref this.itemPtr->components.sparse;
+            ref var dense = ref this.itemPtr->components.dense;
+            if (stateChanged == true ||
+                this.sparseVersion != sparse.version ||
+                this.denseVersion != dense.version) {
+                this.sparseVersion = sparse.version;
+                this.denseVersion = dense.version;
+                if (this.itemPtr->components.Length > 0) {
+                    if (sparse.isCreated == true) this.sparsePtr = (int*)sparse.GetUnsafePtr(in state.allocator);
+                    #if !SPARSESET_DENSE_SLICED
+                    if (dense.isCreated == true) this.densePtr = (Component<T>*)dense.GetUnsafePtr(in state.allocator);
+                    #endif
+                }
+            }
+            
+        }
+
+        [INLINE(256)]
+        public T Value(int id, State state) {
+            this.ValidatePointers(state);
+            if (id >= this.itemPtr->components.Length) {
+                return Worlds.current.ReadData<T>(state.storage.cache[in state.allocator, id]);
+            }
+            var idx = *(this.sparsePtr + id);
+            if (idx == 0) return default;
+            #if SPARSESET_DENSE_SLICED
+            return this.itemPtr->components.GetDense()[in Worlds.current.currentState.allocator, idx].data;
+            #else
+            return (this.densePtr + idx)->data;
+            #endif
+        }
+
+        [INLINE(256)]
+        public bool Has(int id, State state) {
+            this.ValidatePointers(state);
+            if (id >= this.itemPtr->components.Length) return false;
+            var idx = *(this.sparsePtr + id);
+            if (idx == 0) return false;
+            #if SPARSESET_DENSE_SLICED
+            return this.itemPtr->components.GetDense()[in Worlds.current.currentState.allocator, idx].state > 0;
+            #else
+            return (this.densePtr + idx)->state > 0;
+            #endif
+        }
+
+    }
+
     public unsafe struct RegRefRW<T> where T : unmanaged, IStructComponent {
 
         private MemPtr safePtr;
