@@ -64,7 +64,11 @@ namespace ME.ECS {
             var idx = *(this.sparsePtr + id);
             if (idx == 0) return default;
             #if SPARSESET_DENSE_SLICED
-            return this.itemPtr->components.GetDense()[in Worlds.current.currentState.allocator, idx].data;
+            var component = this.itemPtr->components.GetDense()[in Worlds.current.currentState.allocator, idx];
+            if (component.state == 0) {
+                return default;
+            }
+            return component.data;
             #else
             return (this.densePtr + idx)->data;
             #endif
@@ -146,7 +150,11 @@ namespace ME.ECS {
             var idx = *(this.sparsePtr + id);
             if (idx == 0) return ref Worlds.current.GetData<T>(state.storage.cache[in state.allocator, id]);
             #if SPARSESET_DENSE_SLICED
-            return ref this.itemPtr->components.GetDense()[in Worlds.current.currentState.allocator, idx].data;
+            ref var component = ref this.itemPtr->components.GetDense()[in Worlds.current.currentState.allocator, idx];
+            if (component.state == 0) {
+                return ref Worlds.current.GetData<T>(state.storage.cache[in state.allocator, id]);
+            }
+            return ref component.data;
             #else
             return ref (this.densePtr + idx)->data;
             #endif
