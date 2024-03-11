@@ -43,12 +43,16 @@ namespace ME.ECS {
             if (stateChanged == true ||
                 this.sparseVersion != sparse.version ||
                 this.denseVersion != dense.version) {
-                this.sparseVersion = sparse.version;
-                this.denseVersion = dense.version;
                 if (this.itemPtr->components.Length > 0) {
-                    if (sparse.isCreated == true) this.sparsePtr = (int*)sparse.GetUnsafePtr(in state.allocator);
+                    if (sparse.isCreated == true) {
+                        this.sparsePtr = (int*)sparse.GetUnsafePtr(in state.allocator);
+                        this.sparseVersion = sparse.version;
+                    }
                     #if !SPARSESET_DENSE_SLICED
-                    if (dense.isCreated == true) this.densePtr = (Component<T>*)dense.GetUnsafePtr(in state.allocator);
+                    if (dense.isCreated == true) {
+                        this.densePtr = (Component<T>*)dense.GetUnsafePtr(in state.allocator);
+                        this.denseVersion = dense.version;
+                    }
                     #endif
                 }
             }
@@ -129,12 +133,16 @@ namespace ME.ECS {
             if (stateChanged == true ||
                 this.sparseVersion != sparse.version ||
                 this.denseVersion != dense.version) {
-                this.sparseVersion = sparse.version;
-                this.denseVersion = dense.version;
                 if (this.itemPtr->components.Length > 0) {
-                    if (sparse.isCreated == true) this.sparsePtr = (int*)sparse.GetUnsafePtr(in state.allocator);
+                    if (sparse.isCreated == true) {
+                        this.sparsePtr = (int*)sparse.GetUnsafePtr(in state.allocator);
+                        this.sparseVersion = sparse.version;
+                    }
                     #if !SPARSESET_DENSE_SLICED
-                    if (dense.isCreated == true) this.densePtr = (Component<T>*)dense.GetUnsafePtr(in state.allocator);
+                    if (dense.isCreated == true) {
+                        this.densePtr = (Component<T>*)dense.GetUnsafePtr(in state.allocator);
+                        this.denseVersion = dense.version;
+                    }
                     #endif
                 }
             }
