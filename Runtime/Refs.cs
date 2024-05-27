@@ -5,6 +5,7 @@ namespace ME.ECS {
 
     public unsafe struct RegRefRO<T> where T : unmanaged, IStructComponent {
 
+        /*
         private MemPtr safePtr;
         private int sparseVersion;
         private int denseVersion;
@@ -14,9 +15,12 @@ namespace ME.ECS {
         private Component<T>* densePtr;
         #endif
         private UnmanagedComponentsStorage.Item<T>* itemPtr;
+        */
 
         [INLINE(256)]
         public RegRefRO(State state) {
+            
+            /*
             this.safePtr = state.structComponents.unmanagedComponentsStorage.GetRegistryPtr<T>(in state.allocator);
             var components = state.allocator.Ref<UnmanagedComponentsStorage.Item<T>>(this.safePtr).components;
             this.sparseVersion = components.GetSparse().version;
@@ -27,10 +31,14 @@ namespace ME.ECS {
             this.densePtr = (Component<T>*)components.GetDense().GetUnsafePtr(in state.allocator);
             #endif
             this.itemPtr = (UnmanagedComponentsStorage.Item<T>*)state.allocator.GetUnsafePtr(in this.safePtr);
+            */
+            
         }
 
         [INLINE(256)]
         public void ValidatePointers(State state) {
+            
+            /*
             var stateChanged = false;
             if (state.localVersion != this.stateVersion) {
                 this.itemPtr = (UnmanagedComponentsStorage.Item<T>*)state.allocator.GetUnsafePtr(in this.safePtr);
@@ -54,11 +62,16 @@ namespace ME.ECS {
                 }
                 #endif
             }
+            */
             
         }
 
         [INLINE(256)]
         public T Value(int id, State state) {
+            
+            return Worlds.current.ReadData<T>(state.storage.cache[in state.allocator, id]);
+            
+            /*
             this.ValidatePointers(state);
             if (id >= this.itemPtr->components.Length) {
                 return Worlds.current.ReadData<T>(state.storage.cache[in state.allocator, id]);
@@ -74,10 +87,16 @@ namespace ME.ECS {
             #else
             return (this.densePtr + idx)->data;
             #endif
+            */
+            
         }
 
         [INLINE(256)]
         public bool Has(int id, State state) {
+            
+            return Worlds.current.HasData<T>(state.storage.cache[in state.allocator, id]);
+            
+            /*
             this.ValidatePointers(state);
             if (id >= this.itemPtr->components.Length) return false;
             var idx = *(this.sparsePtr + id);
@@ -87,12 +106,14 @@ namespace ME.ECS {
             #else
             return (this.densePtr + idx)->state > 0;
             #endif
+            */
         }
 
     }
 
     public unsafe struct RegRefRW<T> where T : unmanaged, IStructComponent {
 
+        /*
         private MemPtr safePtr;
         private int sparseVersion;
         private int denseVersion;
@@ -102,9 +123,11 @@ namespace ME.ECS {
         private Component<T>* densePtr;
         #endif
         private UnmanagedComponentsStorage.Item<T>* itemPtr;
+        */
 
         [INLINE(256)]
         public RegRefRW(State state) {
+            /*
             this.safePtr = state.structComponents.unmanagedComponentsStorage.GetRegistryPtr<T>(in state.allocator);
             var components = state.allocator.Ref<UnmanagedComponentsStorage.Item<T>>(this.safePtr).components;
             this.sparseVersion = components.GetSparse().version;
@@ -115,10 +138,12 @@ namespace ME.ECS {
             this.densePtr = (Component<T>*)components.GetDense().GetUnsafePtr(in state.allocator);
             #endif
             this.itemPtr = (UnmanagedComponentsStorage.Item<T>*)state.allocator.GetUnsafePtr(in this.safePtr);
+            */
         }
 
         [INLINE(256)]
         public void ValidatePointers(State state) {
+            /*
             var stateChanged = false;
             if (state.localVersion != this.stateVersion) {
                 this.itemPtr = (UnmanagedComponentsStorage.Item<T>*)state.allocator.GetUnsafePtr(in this.safePtr);
@@ -142,11 +167,15 @@ namespace ME.ECS {
                 }
                 #endif
             }
-            
+            */
         }
 
         [INLINE(256)]
         public ref T Value(int id, State state) {
+            
+            return ref Worlds.current.GetData<T>(state.storage.cache[in state.allocator, id]);
+            
+            /*
             this.ValidatePointers(state);
             if (id >= this.itemPtr->components.Length) {
                 return ref Worlds.current.GetData<T>(state.storage.cache[in state.allocator, id]);
@@ -162,10 +191,15 @@ namespace ME.ECS {
             #else
             return ref (this.densePtr + idx)->data;
             #endif
+            */
         }
 
         [INLINE(256)]
         public bool Has(int id, State state) {
+            
+            return Worlds.current.HasData<T>(state.storage.cache[in state.allocator, id]);
+            
+            /*
             this.ValidatePointers(state);
             if (id >= this.itemPtr->components.Length) return false;
             var idx = *(this.sparsePtr + id);
@@ -175,6 +209,7 @@ namespace ME.ECS {
             #else
             return (this.densePtr + idx)->state > 0;
             #endif
+            */
         }
 
     }
