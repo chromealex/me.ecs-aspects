@@ -16,17 +16,17 @@ namespace ME.ECS {
         private readonly RefRW<ME.ECS.Transform.Rotation> localRotationComponent;
         private readonly RefRW<ME.ECS.Transform.Scale> localScaleComponent;
 
-        public ME.ECS.Mathematics.float3 position {
+        public float3 position {
             get => this.ent.GetPosition();
             set => this.ent.SetPosition(value);
         }
         
-        public ME.ECS.Mathematics.quaternion rotation {
+        public quaternion rotation {
             get => this.ent.GetRotation();
             set => this.ent.SetRotation(value);
         }
 
-        public ME.ECS.Mathematics.float3 scale {
+        public float3 scale {
             get => this.ent.GetScale();
         }
 
@@ -57,7 +57,7 @@ namespace ME.ECS {
         private readonly RefRW<ME.ECS.Transform.Rotation2D> localRotationComponent;
         private readonly RefRW<ME.ECS.Transform.Scale2D> localScaleComponent;
 
-        public ME.ECS.Mathematics.float2 position {
+        public float2 position {
             get => this.ent.GetPosition2D();
             set => this.ent.SetPosition2D(value);
         }
@@ -67,7 +67,7 @@ namespace ME.ECS {
             set => this.ent.SetRotation2D(value);
         }
 
-        public ME.ECS.Mathematics.float2 scale {
+        public float2 scale {
             get => this.ent.GetScale2D();
         }
 
